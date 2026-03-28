@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NicoLeaf • Nicotine Level Identifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .heading { font-family: 'Space Grotesk', sans-serif; }
+        
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); }
+        
+        .preview-img {
+            max-height: 340px;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+    <nav class="bg-zinc-900 border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-3xl">🌿</div>
+                <h1 class="heading text-4xl font-bold tracking-tighter">NicoLeaf</h1>
+            </div>
+            <a href="/history" class="flex items-center gap-3 text-lg font-medium hover:text-emerald-400">History</a>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto px-6 py-20 text-center">
+        <h2 class="heading text-6xl font-bold tracking-tighter mb-6">Nicotine Level Identifier</h2>
+        <p class="text-zinc-400 text-xl mb-12">Upload a clear tobacco leaf photo for instant analysis</p>
+
+        <form action="/" method="POST" enctype="multipart/form-data" class="glass border border-white/10 rounded-3xl p-12">
+            <div id="dropZone" class="border-2 border-dashed border-zinc-600 hover:border-emerald-400 rounded-3xl py-24 cursor-pointer transition-all">
+                <i class="fa-solid fa-cloud-upload-alt text-7xl text-emerald-400 mb-6"></i>
+                <p class="text-2xl font-medium">Drop your tobacco leaf here</p>
+                <p class="text-zinc-400 mt-2">or</p>
+                
+                <label class="cursor-pointer inline-block mt-6 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-10 py-4 rounded-3xl text-lg transition-all">
+                    Choose File
+                    <input type="file" name="file" accept="image/*" id="fileInput" class="hidden" required>
+                </label>
+            </div>
+
+            <!-- Preview Section -->
+            <div id="preview" class="hidden mt-10">
+                <img id="previewImg" class="preview-img mx-auto shadow-2xl" alt="Selected Leaf">
+                <button type="button" onclick="removeImage()" 
+                        class="mt-8 flex items-center gap-2 text-red-400 hover:text-red-500 mx-auto font-medium">
+                    <i class="fa-solid fa-trash"></i> 
+                    Remove Image
+                </button>
+            </div>
+
+            <button type="submit" class="mt-12 w-full bg-gradient-to-r from-emerald-500 to-cyan-400 text-black font-bold py-6 rounded-3xl text-xl transition-all">
+                ANALYZE NICOTINE LEVEL
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+
+        // Click on drop zone to open file selector
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // When file is selected
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    previewImg.src = ev.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Remove Image Function - FIXED
+        function removeImage() {
+            preview.classList.add('hidden');     // Hide preview container
+            previewImg.src = '';                 // Clear image source
+            fileInput.value = '';                // Clear file input
+        }
+
+        // Drag & Drop Support
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#10b981';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '';
+            if (e.dataTransfer.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    previewImg.src = ev.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(e.dataTransfer.files[0]);
+                fileInput.files = e.dataTransfer.files;
+            }
+        });
+    </script>
+</body>
+</html>

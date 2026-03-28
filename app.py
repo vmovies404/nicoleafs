@@ -27,15 +27,24 @@ with app.app_context():
 def estimate_nicotine_level(image_path):
     try:
         img = Image.open(image_path).convert("RGB")
+
+        # ✅ RESIZE (VERY IMPORTANT)
+        img.thumbnail((300, 300))
+
         pixels = list(img.getdata())
         total = len(pixels)
+
         r = sum(p[0] for p in pixels) / total
         g = sum(p[1] for p in pixels) / total
         b = sum(p[2] for p in pixels) / total
+
         green_ratio = g / (r + g + b + 0.001)
         nicotine = round(0.8 + (green_ratio * 4.2), 2)
+
         return max(0.8, min(5.0, nicotine))
-    except:
+
+    except Exception as e:
+        print("Error:", e)
         return round(random.uniform(1.5, 4.5), 2)
 
 @app.route("/", methods=["GET", "POST"])
@@ -48,7 +57,9 @@ def index():
             if file and file.filename:
                 filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
                 filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-                file.save(filepath)
+                img = Image.open(file)
+                img.thumbnail((800, 800))
+                img.save(filepath)
 
                 nicotine = estimate_nicotine_level(filepath)
 
